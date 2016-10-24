@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import requests
+import os
 from HTMLParser import HTMLParser
 from datetime import datetime, timedelta
 
@@ -39,7 +40,8 @@ def getRelevantDate():
     return date.strftime("%B %d").upper()
 
 def getGymDay():
-    with open("gym.cfg") as f:
+    path = os.path.join(os.path.dirname(__file__), "gym.cfg")
+    with open(path) as f:
         lines = f.readlines()
     for line in lines:
         if line.split("=")[0].strip() == "gymDay":
