@@ -1,0 +1,68 @@
+#!/usr/bin/env python
+import requests
+from HTMLParser import HTMLParser
+from datetime import datetime, timedelta
+
+extract = []
+class ScheduleParser(HTMLParser):
+    read_mode = False
+    def handle_data(self, data):
+        if "MONDAY" in data:
+            self.read_mode = True
+        if "Bell Schedule" in data:
+            self.read_mode = False
+        if self.read_mode:
+            global extract
+            extract.append(data)
+        pass
+
+def parseSite():
+    r = requests.get("http://stuy.enschool.org/apps/events2/event.jsp?eREC_ID=927665&d=2016-10-24&id=1")
+
+    parser = ScheduleParser()
+    parser.feed(r.text)
+
+    filtered = []
+    for e in extract:
+        if e.strip() != "":
+            filtered.append(e.strip())
+
+    days = [filtered[i:i+3] for i in xrange(0,len(filtered),3)]
+    return days
+
+def getRelevantDate():
+    date = datetime.today()
+    if date.strftime("%A") == "Saturday":
+        date = date + timedelta(days=2)
+    elif date.strftime("%A") == "Sunday":
+        date = date + timedelta(days=1)
+    return date.strftime("%B %d").upper()
+
+def getGymDay():
+    with open("gym.cfg") as f:
+        lines = f.readlines()
+    for line in lines:
+        if line.split("=")[0].strip() == "gymDay":
+            return line.split("=")[1].strip()
+    raise Exception("No gym day specified in gym.cfg")
+
+def display(date, days, gymDay):
+    for day in days:
+        s = ""
+        if date in day[0]:
+            s += '\033[92m'
+        s += day[0] + "\n"
+        s += day[1] + "\n"
+        if gymDay in day[2].split(" ")[-1]:
+            s += "GYM\n"
+        else:
+            s += "NO GYM\n"
+        if date in day[0]:
+            s += '\033[0m'
+        print s
+
+if __name__ == "__main__":
+    days = parseSite()
+    date = getRelevantDate()
+    gymDay = getGymDay()
+    display(date,days, gymDay)
