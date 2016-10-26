@@ -4,18 +4,16 @@ import os
 from HTMLParser import HTMLParser
 from datetime import datetime, timedelta
 
-extract = []
 class ScheduleParser(HTMLParser):
     read_mode = False
+    extract = []
     def handle_data(self, data):
         if "MONDAY" in data:
             self.read_mode = True
         if "Bell Schedule" in data:
             self.read_mode = False
         if self.read_mode:
-            global extract
-            extract.append(data)
-        pass
+            self.extract.append(data)
 
 def parseSite():
     r = requests.get("http://stuy.enschool.org/apps/events2/event.jsp?eREC_ID=927665&d=2016-10-24&id=1")
@@ -24,7 +22,7 @@ def parseSite():
     parser.feed(r.text)
 
     filtered = []
-    for e in extract:
+    for e in parser.extract:
         if e.strip() != "":
             filtered.append(e.strip())
 
