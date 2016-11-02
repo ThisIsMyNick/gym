@@ -35,7 +35,7 @@ def getRelevantDate():
         date = date + timedelta(days=2)
     elif date.strftime("%A") == "Sunday":
         date = date + timedelta(days=1)
-    return date.strftime("%B %d").upper()
+    return date.strftime("%B %-d").upper()
 
 def getGymDay():
     path = os.path.join(os.path.dirname(__file__), "gym.cfg")
