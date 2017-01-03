@@ -26,7 +26,16 @@ def parseSite():
         if e.strip() != "":
             filtered.append(e.strip())
 
-    days = [filtered[i:i+3] for i in xrange(0,len(filtered),3)]
+    #days = [filtered[i:i+3] for i in xrange(0,len(filtered),3)]
+    #print filtered
+    days = []
+    i = 0
+    while i < len(filtered):
+        if filtered[i+1] == 'SCHOOL CLOSED':
+            days.append(filtered[i:i+2])
+            i += 2
+        days.append(filtered[i:i+3])
+        i += 3
     return days
 
 def getRelevantDate():
@@ -53,10 +62,11 @@ def display(date, days, gymDay):
             s += '\033[92m'
         s += day[0] + "\n"
         s += day[1] + "\n"
-        if gymDay in day[2].split(" ")[-1]:
-            s += "GYM\n"
-        else:
-            s += "NO GYM\n"
+        if day[1] != "SCHOOL CLOSED":
+            if gymDay in day[2].split(" ")[-1]:
+                s += "GYM\n"
+            else:
+                s += "NO GYM\n"
         if date in day[0]:
             s += '\033[0m'
         print s
